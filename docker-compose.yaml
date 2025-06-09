@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:8.0.2-alpine
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: emaildb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+  # worker:
+  #   build: ./worker
+  #   depends_on:
+  #     - redis
+  #     - db
+  #   environment:
+  #     - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+  #   volumes:
+  #     - ./worker:/app
+  #
+  # client:
+  #   build: ./client
+  #   depends_on:
+  #     - redis
+  #   volumes:
+  #     - ./client:/app
+
+volumes:
+  pgadmin-data:
