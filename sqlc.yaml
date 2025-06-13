@@ -1,13 +1,12 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    schema: "./migrations"
-    queries: "./sqlc/query"
+    schema: "migrations/"
+    queries: "internal/db/queries/"
     gen:
       go:
-        emit_json_tags: true
-        package: "repository"
-        out: "internal/repository"
+        package: "sqlc"
+        out: "internal/db/sqlc"
         sql_package: "pgx/v5"
         overrides:
           - db_type: "uuid"

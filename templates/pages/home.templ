@@ -1,0 +1,10 @@
+package pages
+
+import (
+	"github.com/shahidshabbir-se/renhance-email-detector/templates/components"
+	"github.com/shahidshabbir-se/renhance-email-detector/templates/layout"
+)
+
+templ Home() {
+	@layout.Index("Email Detector", components.EmailForm())
+}

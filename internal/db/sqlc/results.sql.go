@@ -3,7 +3,7 @@
 //   sqlc v1.29.0
 // source: results.sql
 
-package repository
+package sqlc
 
 import (
 	"context"
@@ -32,9 +32,9 @@ INSERT INTO results (job_id, company, email, fetched_at) VALUES ($1, $2, $3, NOW
 `
 
 type InsertResultParams struct {
-	JobID   string      `json:"job_id"`
-	Company string      `json:"company"`
-	Email   pgtype.Text `json:"email"`
+	JobID   string
+	Company string
+	Email   pgtype.Text
 }
 
 func (q *Queries) InsertResult(ctx context.Context, arg InsertResultParams) error {
