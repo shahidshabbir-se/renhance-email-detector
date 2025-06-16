@@ -7,11 +7,11 @@ services:
       - ./migrations:/migrations
     secrets:
       - database_url
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        export DATABASE_URL=`cat /run/secrets/database_url` &&
-        migrate -path=/migrations -database "$DATABASE_URL" up
+    entrypoint: >
+      /bin/sh -c "
+        export DATABASE_URL=$$(cat /run/secrets/database_url) &&
+        migrate -path=/migrations -database=$$DATABASE_URL up
+      "
     deploy:
       restart_policy:
         condition: none
