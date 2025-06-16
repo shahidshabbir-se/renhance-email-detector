@@ -94,20 +94,15 @@ jobs:
             done
           '
 
-      - name: Run Database Migrations
+      - name: Run Migrations via Docker Stack
         run: |
           ssh renhance-server '
-            PGUSER=$(docker run --rm -v renhance_postgres_user:/secret alpine cat /secret/_data) &&
-            PGPASSWORD=$(docker run --rm -v renhance_postgres_password:/secret alpine cat /secret/_data) &&
-            PGDB=$(docker run --rm -v renhance_postgres_db:/secret alpine cat /secret/_data) &&
-
-            docker run --rm \
-              --network renhance_internal \
-              -v ~/renhance/migrations:/migrations \
-              migrate/migrate \
-              -path=/migrations \
-              -database "postgres://${PGUSER}:${PGPASSWORD}@db:5432/${PGDB}?sslmode=disable" \
-            up
+            cd ~/renhance &&
+            docker stack deploy -c docker-compose.migrate.yaml migrate-job &&
+            echo "Waiting for migrate service to finish..." &&
+            sleep 10 &&
+            docker service logs migrate-job_migrate &&
+            docker stack rm migrate-job
           '
 
       - name: Verify Deployment

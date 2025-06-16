@@ -1,0 +1,25 @@
+services:
+  migrate:
+    image: migrate/migrate
+    networks:
+      - renhance_internal
+    volumes:
+      - ./migrations:/migrations
+    secrets:
+      - database_url
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        export DATABASE_URL=$(cat /run/secrets/database_url) &&
+        migrate -path=/migrations -database "$DATABASE_URL" up
+    deploy:
+      restart_policy:
+        condition: none
+
+secrets:
+  database_url:
+    external: true
+
+networks:
+  renhance_internal:
+    external: true
