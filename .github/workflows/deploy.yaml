@@ -75,7 +75,7 @@ jobs:
         uses: cssnr/stack-deploy-action@v1
         with:
           name: renhance
-          file: docker-stack.yaml
+          file: docker-compose.yaml
           host: ${{ secrets.SERVER_IP }}
           user: ${{ secrets.DEPLOY_USER }}
           ssh_key: ${{ secrets.DEPLOY_KEY }}
