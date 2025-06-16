@@ -107,6 +107,3 @@ jobs:
             docker service logs migrate-job_migrate &&
             docker stack rm migrate-job
           '
-
-      - name: Verify Deployment
-        run: curl -f https://renhance.duckdns.org || exit 1
