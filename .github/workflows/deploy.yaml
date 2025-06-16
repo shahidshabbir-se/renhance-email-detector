@@ -66,22 +66,10 @@ jobs:
         run: tar -czf migrations.tar.gz -C ./migrations .
 
       - name: Copy Migrations to Remote Server
-        run: scp migrations.tar.gz renhance-server:/tmp/migrations.tar.gz
+        run: scp -o StrictHostKeyChecking=no migrations.tar.gz renhance-server:/tmp/migrations.tar.gz
 
       - name: Extract Migrations on Remote Server
         run: ssh renhance-server 'mkdir -p ~/renhance/migrations && tar -xzf /tmp/migrations.tar.gz -C ~/renhance/migrations'
-
-      - name: Run Database Migrations
-        run: |
-          ssh renhance-server '
-            docker run --rm \
-              --network renhance_internal \
-              -v ~/renhance/migrations:/migrations \
-              migrate/migrate \
-              -path=/migrations \
-              -database "${{ secrets.DATABASE_URL }}" \
-              up
-          '
 
       - name: Deploy Renhance Stack via SSH
         uses: cssnr/stack-deploy-action@v1
@@ -91,6 +79,32 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           user: ${{ secrets.DEPLOY_USER }}
           ssh_key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Wait for Database to Become Healthy
+        run: |
+          ssh renhance-server '
+            echo "Waiting for PostgreSQL to be healthy..."
+            for i in {1..10}; do
+              docker inspect --format="{{json .State.Health.Status}}" $(docker ps -qf "name=postgres") | grep -q "healthy" && break
+              echo "Still waiting..."
+              sleep 5
+            done
+          '
+
+      - name: Run Database Migrations
+        run: |
+          ssh renhance-server '
+            export PGUSER=$$(cat /var/lib/docker/volumes/renhance_postgres_user/_data) &&
+            export PGPASSWORD=$$(cat /var/lib/docker/volumes/renhance_postgres_password/_data) &&
+            export PGDB=$$(cat /var/lib/docker/volumes/renhance_postgres_db/_data) &&
+            docker run --rm \
+              --network renhance_internal \
+              -v ~/renhance/migrations:/migrations \
+              migrate/migrate \
+              -path=/migrations \
+              -database "postgres://$$PGUSER:$$PGPASSWORD@db:5432/$$PGDB?sslmode=disable" \
+              up
+          '
 
       - name: Verify Deployment
         run: curl -f https://renhance.duckdns.org || exit 1
