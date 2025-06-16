@@ -71,6 +71,9 @@ jobs:
       - name: Extract Migrations on Remote Server
         run: ssh renhance-server 'mkdir -p ~/renhance/migrations && tar -xzf /tmp/migrations.tar.gz -C ~/renhance/migrations'
 
+      - name: Ensure external web network exists
+        run: ssh renhance-server 'docker network inspect web >/dev/null 2>&1 || docker network create --driver=overlay --attachable web'
+
       - name: Deploy Renhance Stack via SSH
         uses: cssnr/stack-deploy-action@v1
         with:
