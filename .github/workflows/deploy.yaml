@@ -97,15 +97,15 @@ jobs:
       - name: Run Database Migrations
         run: |
           ssh renhance-server '
-            export PGUSER=$$(cat /var/lib/docker/volumes/renhance_postgres_user/_data) &&
-            export PGPASSWORD=$$(cat /var/lib/docker/volumes/renhance_postgres_password/_data) &&
-            export PGDB=$$(cat /var/lib/docker/volumes/renhance_postgres_db/_data) &&
+            PGUSER=$(cat /var/lib/docker/volumes/renhance_postgres_user/_data) &&
+            PGPASSWORD=$(cat /var/lib/docker/volumes/renhance_postgres_password/_data) &&
+            PGDB=$(cat /var/lib/docker/volumes/renhance_postgres_db/_data) &&
             docker run --rm \
               --network renhance_internal \
               -v ~/renhance/migrations:/migrations \
               migrate/migrate \
               -path=/migrations \
-              -database "postgres://$$PGUSER:$$PGPASSWORD@db:5432/$$PGDB?sslmode=disable" \
+              -database "postgres://${PGUSER}:${PGPASSWORD}@db:5432/${PGDB}?sslmode=disable" \
               up
           '
 
