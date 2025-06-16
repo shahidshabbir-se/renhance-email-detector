@@ -102,3 +102,13 @@ jobs:
             docker service logs migrate-job_migrate &&
             docker stack rm migrate-job
           '
+
+      - name: Cleanup old containers, images, and networks
+        run: |
+          ssh renhance-server '
+            echo "Running cleanup..." &&
+            docker container prune -f &&
+            docker image prune -af &&
+            docker volume prune -f &&
+            docker network prune -f
+          '
