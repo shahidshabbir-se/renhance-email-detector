@@ -2,9 +2,9 @@ services:
   migrate:
     image: migrate/migrate
     networks:
-      - renhance_internal
+      - internal
     volumes:
-      - ./migrations:/migrations
+      - ./migrations:/migrations:ro
     secrets:
       - database_url
     entrypoint: >
@@ -21,5 +21,5 @@ secrets:
     external: true
 
 networks:
-  renhance_internal:
+  internal:
     external: true
