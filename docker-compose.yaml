@@ -28,6 +28,9 @@ services:
       - database_url
       - betterstack_token
       - betterstack_logs_url
+      - postgres_user
+      - postgres_password
+      - postgres_db
     environment:
       - APP_ENV=production
       - REDIS_ADDR=redis:6379
@@ -54,7 +57,7 @@ services:
         export PGUSER=$$(cat /run/secrets/postgres_user) &&
         export PGPASSWORD=$$(cat /run/secrets/postgres_password) &&
         export PGDB=$$(cat /run/secrets/postgres_db) &&
-        export DATABASE_URL=\"postgres://$PGUSER:$PGPASSWORD@db:5432/$PGDB?sslmode=disable\" &&
+        export DATABASE_URL=\"postgres://$$PGUSER:$$PGPASSWORD@db:5432/$$PGDB?sslmode=disable\" &&
         export BETTERSTACK_TOKEN=$$(cat /run/secrets/betterstack_token) && 
         export BETTERSTACK_LOGS_URL=$$(cat /run/secrets/betterstack_logs_url) && 
         ./api
@@ -70,6 +73,9 @@ services:
       - database_url
       - betterstack_token
       - betterstack_logs_url
+      - postgres_user
+      - postgres_password
+      - postgres_db
     environment:
       - APP_ENV=production
       - REDIS_ADDR=redis:6379
@@ -87,7 +93,7 @@ services:
         export PGUSER=$$(cat /run/secrets/postgres_user) &&
         export PGPASSWORD=$$(cat /run/secrets/postgres_password) &&
         export PGDB=$$(cat /run/secrets/postgres_db) &&
-        export DATABASE_URL=\"postgres://$PGUSER:$PGPASSWORD@db:5432/$PGDB?sslmode=disable\" &&
+        export DATABASE_URL=\"postgres://$$PGUSER:$$PGPASSWORD@db:5432/$$PGDB?sslmode=disable\" &&
         export BETTERSTACK_TOKEN=$$(cat /run/secrets/betterstack_token) && 
         export BETTERSTACK_LOGS_URL=$$(cat /run/secrets/betterstack_logs_url) && 
         ./worker
