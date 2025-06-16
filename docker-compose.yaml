@@ -1,0 +1,163 @@
+services:
+  traefik:
+    image: traefik:v3.3
+    container_name: traefik
+    restart: always
+    command:
+      - "--api.dashboard=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.email=shahidshabbirse@gmail.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpChallenge.entryPoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "letsencrypt:/letsencrypt"
+    networks:
+      - web
+
+  api:
+    image: ghcr.io/shahidshabbir-se/renhance-api:${GIT_COMMIT_HASH:-latest}
+    secrets:
+      - hunter_api_key
+      - database_url
+      - betterstack_token
+      - betterstack_logs_url
+    environment:
+      - APP_ENV=production
+      - REDIS_ADDR=redis:6379
+      - LOG_DRIVER=console
+      - HUNTER_API_KEY_FILE=/run/secrets/hunter_api_key
+      - DATABASE_URL_FILE=/run/secrets/database_url
+      - BETTERSTACK_TOKEN_FILE=/run/secrets/betterstack_token
+      - BETTERSTACK_LOGS_URL_FILE=/run/secrets/betterstack_logs_url
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.renhance-api.rule=Host(`renhance.duckdns.org`)"
+      - "traefik.http.routers.renhance-api.entrypoints=websecure"
+      - "traefik.http.routers.renhance-api.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+    depends_on:
+      - db
+      - redis
+    entrypoint: >
+      /bin/sh -c "
+        export HUNTER_API_KEY=$$(cat /run/secrets/hunter_api_key) && 
+        export PGUSER=$$(cat /run/secrets/postgres_user) &&
+        export PGPASSWORD=$$(cat /run/secrets/postgres_password) &&
+        export PGDB=$$(cat /run/secrets/postgres_db) &&
+        export DATABASE_URL=\"postgres://$PGUSER:$PGPASSWORD@db:5432/$PGDB?sslmode=disable\" &&
+        export BETTERSTACK_TOKEN=$$(cat /run/secrets/betterstack_token) && 
+        export BETTERSTACK_LOGS_URL=$$(cat /run/secrets/betterstack_logs_url) && 
+        ./api
+      "
+    networks:
+      - internal
+      - web
+
+  worker:
+    image: ghcr.io/shahidshabbir-se/renhance-worker:${GIT_COMMIT_HASH:-latest}
+    secrets:
+      - hunter_api_key
+      - database_url
+      - betterstack_token
+      - betterstack_logs_url
+    environment:
+      - APP_ENV=production
+      - REDIS_ADDR=redis:6379
+      - LOG_DRIVER=console
+      - HUNTER_API_KEY_FILE=/run/secrets/hunter_api_key
+      - DATABASE_URL_FILE=/run/secrets/database_url
+      - BETTERSTACK_TOKEN_FILE=/run/secrets/betterstack_token
+      - BETTERSTACK_LOGS_URL_FILE=/run/secrets/betterstack_logs_url
+    depends_on:
+      - db
+      - redis
+    entrypoint: >
+      /bin/sh -c "
+        export HUNTER_API_KEY=$$(cat /run/secrets/hunter_api_key) && 
+        export PGUSER=$$(cat /run/secrets/postgres_user) &&
+        export PGPASSWORD=$$(cat /run/secrets/postgres_password) &&
+        export PGDB=$$(cat /run/secrets/postgres_db) &&
+        export DATABASE_URL=\"postgres://$PGUSER:$PGPASSWORD@db:5432/$PGDB?sslmode=disable\" &&
+        export BETTERSTACK_TOKEN=$$(cat /run/secrets/betterstack_token) && 
+        export BETTERSTACK_LOGS_URL=$$(cat /run/secrets/betterstack_logs_url) && 
+        ./worker
+      "
+    networks:
+      - internal
+
+  db:
+    image: postgres:17-alpine
+    container_name: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    secrets:
+      - postgres_user
+      - postgres_password
+      - postgres_db
+    entrypoint: >
+      /bin/sh -c "
+        export POSTGRES_USER=$$(cat /run/secrets/postgres_user) && 
+        export POSTGRES_PASSWORD=$$(cat /run/secrets/postgres_password) && 
+        export POSTGRES_DB=$$(cat /run/secrets/postgres_db) && 
+        exec docker-entrypoint.sh postgres
+      "
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - internal
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    entrypoint: >
+      /bin/sh -c "
+        REDIS_PASSWORD=$$(cat /run/secrets/redis_password) && 
+        redis-server --save 60 1 --loglevel warning --requirepass $$REDIS_PASSWORD
+      "
+    secrets:
+      - redis_password
+    networks:
+      - internal
+
+volumes:
+  pgdata:
+  letsencrypt:
+
+secrets:
+  hunter_api_key:
+    external: true
+  database_url:
+    external: true
+  betterstack_token:
+    external: true
+  betterstack_logs_url:
+    external: true
+  redis_password:
+    external: true
+  postgres_user:
+    external: true
+  postgres_password:
+    external: true
+  postgres_db:
+    external: true
+
+networks:
+  internal:
+    internal: true
+  web:
+    external: true

@@ -1,20 +1,53 @@
 package layout
 
 templ Index(title string, children templ.Component) {
-	<html lang="en" class="scroll-smooth">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>{ title }</title>
-			<script src="https://cdn.tailwindcss.com"></script>
-			<script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-			<script src="https://unpkg.com/alpinejs" defer></script>
-		</head>
-		<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen flex flex-col">
-			@Nav()
-			<main class="flex-grow flex items-center justify-center p-4">
-				@children
-			</main>
-		</body>
-	</html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{ title }</title>
+  <link rel="icon" href="/static/favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Sora:wght@100..800&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+  <script src="https://unpkg.com/alpinejs" defer></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#D4FF00',
+            dark: '#111111',
+            black: '#000000',
+            light: '#F7F7F7',
+            muted: '#888888',
+            success: '#00FF94',
+            danger: '#FF3C3C',
+            warning: '#FFC300',
+            cta: '#FF2E80',
+            secondary: '#243c5a'
+          },
+          fontFamily: {
+            heading: ['"Sora"', 'sans-serif'],
+            body: ['"Inter"', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-light font-normal text-black dark:bg-black font-body dark:text-white min-h-screen flex flex-col">
+  @Nav()
+  <main class="flex-grow flex items-center justify-center p-4">
+    @children
+  </main>
+</body>
+
+</html>
 }

@@ -11,33 +11,80 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getResultByJobID = `-- name: GetResultByJobID :one
-SELECT job_id, company, email, fetched_at FROM results WHERE job_id = $1
+const getJobDetails = `-- name: GetJobDetails :many
+SELECT
+    j.id AS job_id,
+    j.domain AS job_domain,
+    c.id AS company_id,
+    c.domain,
+    c.organization,
+    c.description,
+    c.country,
+    c.city,
+    ct.id AS contact_id,
+    ct.email,
+    ct.first_name,
+    ct.last_name,
+    ct.position,
+    ct.department,
+    ct.linkedin_url
+FROM jobs j
+JOIN job_results jr ON jr.job_id = j.id
+JOIN companies c ON c.id = jr.company_id
+LEFT JOIN contacts ct ON ct.company_id = c.id
+WHERE j.id = $1
 `
 
-func (q *Queries) GetResultByJobID(ctx context.Context, jobID string) (Result, error) {
-	row := q.db.QueryRow(ctx, getResultByJobID, jobID)
-	var i Result
-	err := row.Scan(
-		&i.JobID,
-		&i.Company,
-		&i.Email,
-		&i.FetchedAt,
-	)
-	return i, err
+type GetJobDetailsRow struct {
+	JobID        string
+	JobDomain    string
+	CompanyID    int32
+	Domain       string
+	Organization pgtype.Text
+	Description  pgtype.Text
+	Country      pgtype.Text
+	City         pgtype.Text
+	ContactID    pgtype.Int4
+	Email        pgtype.Text
+	FirstName    pgtype.Text
+	LastName     pgtype.Text
+	Position     pgtype.Text
+	Department   pgtype.Text
+	LinkedinUrl  pgtype.Text
 }
 
-const insertResult = `-- name: InsertResult :exec
-INSERT INTO results (job_id, company, email, fetched_at) VALUES ($1, $2, $3, NOW())
-`
-
-type InsertResultParams struct {
-	JobID   string
-	Company string
-	Email   pgtype.Text
-}
-
-func (q *Queries) InsertResult(ctx context.Context, arg InsertResultParams) error {
-	_, err := q.db.Exec(ctx, insertResult, arg.JobID, arg.Company, arg.Email)
-	return err
+func (q *Queries) GetJobDetails(ctx context.Context, id string) ([]GetJobDetailsRow, error) {
+	rows, err := q.db.Query(ctx, getJobDetails, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetJobDetailsRow
+	for rows.Next() {
+		var i GetJobDetailsRow
+		if err := rows.Scan(
+			&i.JobID,
+			&i.JobDomain,
+			&i.CompanyID,
+			&i.Domain,
+			&i.Organization,
+			&i.Description,
+			&i.Country,
+			&i.City,
+			&i.ContactID,
+			&i.Email,
+			&i.FirstName,
+			&i.LastName,
+			&i.Position,
+			&i.Department,
+			&i.LinkedinUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

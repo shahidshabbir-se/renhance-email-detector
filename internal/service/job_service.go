@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/shahidshabbir-se/renhance-email-detector/internal/db"
 )
@@ -12,6 +13,7 @@ func EnqueueJob(ctx context.Context, jobID, company string) error {
 	job := map[string]string{
 		"job_id":       jobID,
 		"company_name": company,
+		"created_at":   time.Now().String(),
 	}
 	data, err := json.Marshal(job)
 	if err != nil {

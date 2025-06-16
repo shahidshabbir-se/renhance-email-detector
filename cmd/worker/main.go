@@ -2,74 +2,60 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/shahidshabbir-se/renhance-email-detector/internal/db"
 	"github.com/shahidshabbir-se/renhance-email-detector/internal/db/sqlc"
-	"github.com/shahidshabbir-se/renhance-email-detector/internal/tasks"
-	"github.com/shahidshabbir-se/renhance-email-detector/internal/types"
-)
-
-var (
-	ctx         = context.Background()
-	log         = logrus.New()
-	redisClient *redis.Client
-	dbQueries   *sqlc.Queries
+	"github.com/shahidshabbir-se/renhance-email-detector/internal/logger"
+	"github.com/shahidshabbir-se/renhance-email-detector/internal/service"
+	"github.com/shahidshabbir-se/renhance-email-detector/pkg/utils"
 )
 
 func main() {
 	_ = godotenv.Load()
-	log.SetFormatter(&logrus.JSONFormatter{})
-	log.SetOutput(os.Stdout)
 
-	redisClient = redis.NewClient(&redis.Options{
-		Addr: os.Getenv("REDIS_ADDR"),
-	})
-	pgPool, _ := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
-	defer pgPool.Close()
-	dbQueries = sqlc.New(pgPool)
+	log := logrus.New()
+	logger.InitLogger(log)
 
-	log.Info("Worker started")
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	// Initialize Redis
+	if err := db.InitRedis(ctx, log); err != nil {
+		log.WithError(err).Fatal("❌ Failed to initialize Redis")
+	}
+
+	// Initialize PostgreSQL
+	pool := db.InitPostgres(ctx, log)
+	queries := sqlc.New(pool)
+
+	// Load Hunter API key
+	apiKey := utils.GetEnv("HUNTER_API_KEY", "")
+	if apiKey == "" {
+		log.Fatal("❌ HUNTER_API_KEY is not set in environment")
+	}
+
+	// Init Hunter API client and service
+	client := service.NewHunterClient(apiKey)
+	hunterService := service.NewHunterService(queries, client, db.RedisClient)
+
+	log.Info("✅ Email detection worker started")
 
 	for {
-		jobJSON, err := redisClient.BLPop(ctx, 0*time.Second, "email_detection_jobs").Result()
-		if err != nil || len(jobJSON) < 2 {
-			continue
+		select {
+		case <-ctx.Done():
+			log.Info("👋 Worker shutdown requested, exiting")
+			return
+		default:
+			if err := hunterService.PollAndProcess(ctx, "email_detection_jobs"); err != nil {
+				log.WithError(err).Warn("⚠️ PollAndProcess failed")
+				time.Sleep(2 * time.Second)
+			}
 		}
-
-		var job types.Job
-		if err := json.Unmarshal([]byte(jobJSON[1]), &job); err != nil {
-			log.WithError(err).Error("Invalid job JSON")
-			continue
-		}
-
-		emails, err := tasks.DetectEmails(job.CompanyName)
-		if err != nil {
-			log.WithError(err).Error("Email detection failed")
-			continue
-		}
-
-		first := ""
-		if len(emails) > 0 {
-			first = emails[0]
-		}
-
-		if err := tasks.SaveResult(ctx, dbQueries, job.JobID, job.CompanyName, first); err != nil {
-			log.WithError(err).Error("Failed to save result")
-		}
-		if err := tasks.CacheResult(ctx, redisClient, job.JobID, emails); err != nil {
-			log.WithError(err).Error("Failed to cache result")
-		}
-
-		log.WithFields(logrus.Fields{
-			"job_id": job.JobID,
-			"emails": len(emails),
-		}).Info("Job completed")
 	}
 }

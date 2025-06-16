@@ -12,9 +12,11 @@ var RedisClient *redis.Client
 
 func InitRedis(ctx context.Context, log *logrus.Logger) error {
 	addr := utils.GetEnv("REDIS_ADDR", "localhost:6379")
+	password := utils.GetEnv("REDIS_PASSWORD", "")
 
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr: addr,
+		Addr:     addr,
+		Password: password,
 	})
 
 	if err := RedisClient.Ping(ctx).Err(); err != nil {

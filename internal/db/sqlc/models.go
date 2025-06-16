@@ -8,9 +8,35 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Result struct {
+type Company struct {
+	ID           int32
+	Domain       string
+	Organization pgtype.Text
+	Description  pgtype.Text
+	Country      pgtype.Text
+	City         pgtype.Text
+	CreatedAt    pgtype.Timestamp
+}
+
+type Contact struct {
+	ID          int32
+	CompanyID   int32
+	Email       string
+	FirstName   pgtype.Text
+	LastName    pgtype.Text
+	Position    pgtype.Text
+	Department  pgtype.Text
+	LinkedinUrl pgtype.Text
+	CreatedAt   pgtype.Timestamp
+}
+
+type Job struct {
+	ID        string
+	Domain    string
+	CreatedAt pgtype.Timestamp
+}
+
+type JobResult struct {
 	JobID     string
-	Company   string
-	Email     pgtype.Text
-	FetchedAt pgtype.Timestamp
+	CompanyID int32
 }

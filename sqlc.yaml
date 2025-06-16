@@ -8,6 +8,7 @@ sql:
         package: "sqlc"
         out: "internal/db/sqlc"
         sql_package: "pgx/v5"
+        emit_interface: true
         overrides:
           - db_type: "uuid"
             go_type:
@@ -17,3 +18,5 @@ sql:
             go_type:
               import: "time"
               type: "Time"
+          - db_type: "text"
+            go_type: string

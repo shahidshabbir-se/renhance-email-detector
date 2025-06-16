@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS job_results;
+DROP TABLE IF EXISTS contacts;
+DROP TABLE IF EXISTS companies;
+DROP TABLE IF EXISTS jobs;

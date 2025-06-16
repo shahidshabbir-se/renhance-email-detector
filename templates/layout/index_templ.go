@@ -36,13 +36,13 @@ func Index(title string, children templ.Component) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout/index.templ`, Line: 8, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout/index.templ`, Line: 9, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><script src=\"https://cdn.tailwindcss.com\"></script><script src=\"https://unpkg.com/htmx.org@1.9.10\" defer></script><script src=\"https://unpkg.com/alpinejs\" defer></script></head><body class=\"bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen flex flex-col\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"icon\" href=\"/static/favicon.png\" type=\"image/png\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Sora:wght@100..800&display=swap\" rel=\"stylesheet\"><script src=\"https://cdn.tailwindcss.com\"></script><script src=\"https://unpkg.com/htmx.org@1.9.10\" defer></script><script src=\"https://unpkg.com/alpinejs\" defer></script><script>\n    tailwind.config = {\n      theme: {\n        extend: {\n          colors: {\n            primary: '#D4FF00',\n            dark: '#111111',\n            black: '#000000',\n            light: '#F7F7F7',\n            muted: '#888888',\n            success: '#00FF94',\n            danger: '#FF3C3C',\n            warning: '#FFC300',\n            cta: '#FF2E80',\n            secondary: '#243c5a'\n          },\n          fontFamily: {\n            heading: ['\"Sora\"', 'sans-serif'],\n            body: ['\"Inter\"', 'sans-serif'],\n          },\n        }\n      }\n    }\n  </script></head><body class=\"bg-light font-normal text-black dark:bg-black font-body dark:text-white min-h-screen flex flex-col\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
