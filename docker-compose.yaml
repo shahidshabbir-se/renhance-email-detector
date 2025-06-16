@@ -171,6 +171,6 @@ secrets:
 
 networks:
   internal:
-    internal: true
+    external: true
   web:
     external: true
