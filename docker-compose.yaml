@@ -12,6 +12,7 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.email=shahidshabbirse@gmail.com"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.httpChallenge.entryPoint=web"
+      - "traefik.http.services.renhance-api.loadbalancer.server.port=8080"
     ports:
       - "80:80"
       - "443:443"
