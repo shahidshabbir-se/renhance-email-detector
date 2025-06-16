@@ -68,6 +68,9 @@ jobs:
       - name: Copy Migrations to Remote Server
         run: scp -o StrictHostKeyChecking=no migrations.tar.gz renhance-server:/tmp/migrations.tar.gz
 
+      - name: Copy Compose File to Remote Server
+        run: scp -o StrictHostKeyChecking=no docker-compose.migrate.yaml renhance-server:~/renhance/docker-compose.migrate.yaml
+
       - name: Extract Migrations on Remote Server
         run: ssh renhance-server 'mkdir -p ~/renhance/migrations && tar -xzf /tmp/migrations.tar.gz -C ~/renhance/migrations'
 
