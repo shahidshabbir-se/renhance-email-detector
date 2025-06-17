@@ -67,7 +67,7 @@ services:
         exec ./api
       "
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/healthz"]
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
       interval: 10s
       timeout: 5s
       retries: 10

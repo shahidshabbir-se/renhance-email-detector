@@ -12,9 +12,6 @@ RUN go mod download
 
 COPY . .
 
-# Install Templ and generate templates
-RUN go install github.com/a-h/templ/cmd/templ@latest && templ generate
-
 # ----------------------------
 # Target: API Builder
 # ----------------------------
@@ -34,14 +31,12 @@ FROM alpine:3.20 AS runtime
 
 WORKDIR /app
 
-RUN apk add --no-cache ca-certificates curl \
+RUN apk add --no-cache ca-certificates \
   && adduser -D -u 10001 appuser
 
-# Copy assets
 COPY templates /app/templates
 COPY web /app/web
 
-# Copy binaries
 COPY --from=api-builder /app/api .
 COPY --from=worker-builder /app/worker .
 
