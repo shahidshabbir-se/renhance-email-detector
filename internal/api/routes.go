@@ -30,5 +30,9 @@ func SetupRouter(handler *handlers.Handler, log *logrus.Logger) *fiber.App {
 		},
 	}), monitor.New())
 
+	app.Get("/healthz", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
+	})
+
 	return app
 }
