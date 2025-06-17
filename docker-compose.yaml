@@ -12,8 +12,6 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.email=shahidshabbirse@gmail.com"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.httpChallenge.entryPoint=web"
-      - "--accesslog=true"
-      - "--log.level=DEBUG"
     ports:
       - "80:80"
       - "443:443"
@@ -71,6 +69,11 @@ services:
     networks:
       - internal
       - web
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   worker:
     image: ghcr.io/shahidshabbir-se/renhance-worker:${GIT_COMMIT_HASH:-latest}

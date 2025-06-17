@@ -95,12 +95,15 @@ jobs:
       - name: Run Migrations via Docker Stack
         run: |
           ssh renhance-server '
+            set -e
             cd ~/renhance &&
             docker stack deploy -c docker-compose.migrate.yaml migrate-job &&
             echo "Waiting for migrate service to finish..." &&
             sleep 10 &&
-            docker service logs migrate-job_migrate &&
-            docker stack rm migrate-job
+            docker service logs migrate-job_migrate || true &&
+            docker stack rm migrate-job &&
+            echo "Cleaning up migration files..." &&
+            rm -rf ~/renhance/migrations ~/renhance/docker-compose.migrate.yaml /tmp/migrations.tar.gz
           '
 
       - name: Cleanup old containers, images, and networks
