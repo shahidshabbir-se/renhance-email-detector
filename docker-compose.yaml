@@ -56,24 +56,25 @@ services:
       - redis
     entrypoint: >
       /bin/sh -c "
-        export HUNTER_API_KEY=$$(cat /run/secrets/hunter_api_key) && 
+        export HUNTER_API_KEY=$$(cat /run/secrets/hunter_api_key) &&
         export PGUSER=$$(cat /run/secrets/postgres_user) &&
         export PGPASSWORD=$$(cat /run/secrets/postgres_password) &&
         export PGDB=$$(cat /run/secrets/postgres_db) &&
         export DATABASE_URL=\"postgres://$$PGUSER:$$PGPASSWORD@db:5432/$$PGDB?sslmode=disable\" &&
-        export BETTERSTACK_TOKEN=$$(cat /run/secrets/betterstack_token) && 
-        export BETTERSTACK_LOGS_URL=$$(cat /run/secrets/betterstack_logs_url) && 
+        export BETTERSTACK_TOKEN=$$(cat /run/secrets/betterstack_token) &&
+        export BETTERSTACK_LOGS_URL=$$(cat /run/secrets/betterstack_logs_url) &&
         export REDIS_PASSWORD=$$(cat /run/secrets/redis_password) &&
-        ./api
+        exec ./api
       "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
     networks:
       - internal
       - web
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
   worker:
     image: ghcr.io/shahidshabbir-se/renhance-worker:${GIT_COMMIT_HASH:-latest}
