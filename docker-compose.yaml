@@ -12,6 +12,8 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.email=shahidshabbirse@gmail.com"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.httpChallenge.entryPoint=web"
+      - "--accesslog=true"
+      - "--log.level=DEBUG"
     ports:
       - "80:80"
       - "443:443"
