@@ -12,6 +12,9 @@ RUN go mod download
 
 COPY . .
 
+# Install Templ and generate templates
+RUN go install github.com/a-h/templ/cmd/templ@latest && templ generate
+
 # ----------------------------
 # Target: API Builder
 # ----------------------------
@@ -34,9 +37,11 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates \
   && adduser -D -u 10001 appuser
 
+# Copy assets
 COPY templates /app/templates
 COPY web /app/web
 
+# Copy binaries
 COPY --from=api-builder /app/api .
 COPY --from=worker-builder /app/worker .
 
