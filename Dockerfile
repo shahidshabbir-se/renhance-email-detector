@@ -34,7 +34,7 @@ FROM alpine:3.20 AS runtime
 
 WORKDIR /app
 
-RUN apk add --no-cache ca-certificates \
+RUN apk add --no-cache ca-certificates curl \
   && adduser -D -u 10001 appuser
 
 # Copy assets
