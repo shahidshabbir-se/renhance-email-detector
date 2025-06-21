@@ -180,6 +180,8 @@ secrets:
     external: true
   postgres_db:
     external: true
+  admin_password:
+    external: true
 
 networks:
   internal:
