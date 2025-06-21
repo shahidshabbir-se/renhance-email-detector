@@ -1,0 +1,11 @@
+package pages
+
+import (
+"github.com/shahidshabbir-se/renhance-email-detector/internal/types"
+"github.com/shahidshabbir-se/renhance-email-detector/templates/components/job_details"
+"github.com/shahidshabbir-se/renhance-email-detector/templates/layout"
+)
+
+templ Results(job types.JobDetails) {
+@layout.Index("Results for "+job.JobID, jobdetails.Index(job))
+}

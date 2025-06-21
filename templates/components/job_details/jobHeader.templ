@@ -1,0 +1,10 @@
+package jobdetails
+
+templ JobHeader(jobID string, domain string) {
+<div
+  class="bg-gradient-to-br from-primary to-white dark:from-primary dark:to-dark dark:text-white p-5 rounded-xl shadow-md relative overflow-hidden animate-fade-in">
+  <div class="absolute top-0 right-0 p-2 text-xs font-semibold uppercase dark:text-white/60">Job Summary</div>
+  <h1 class="text-2xl font-bold tracking-tight">{ jobID }</h1>
+  <p class="text-sm dark:text-white/80">Domain: <span class="font-semibold">{ domain }</span></p>
+</div>
+}

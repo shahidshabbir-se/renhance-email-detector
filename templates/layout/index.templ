@@ -1,27 +1,27 @@
 package layout
 
 templ Index(title string, children templ.Component) {
-<html lang="en" class="scroll-smooth">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{ title }</title>
-  <link rel="icon" href="/static/favicon.png" type="image/png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Sora:wght@100..800&display=swap"
-    rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
-  <script src="https://unpkg.com/alpinejs" defer></script>
-  <script>
+	<html lang="en" class="scroll-smooth">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title }</title>
+			<link rel="icon" href="/static/favicon.png" type="image/png"/>
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+			<link
+				href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Sora:wght@100..800&display=swap"
+				rel="stylesheet"
+			/>
+			<script src="https://cdn.tailwindcss.com"></script>
+			<script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+			<script src="https://unpkg.com/alpinejs" defer></script>
+			<script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary: '#D4FF00',
+            primary: '#4a79ee',
             dark: '#111111',
             black: '#000000',
             light: '#F7F7F7',
@@ -36,18 +36,30 @@ templ Index(title string, children templ.Component) {
             heading: ['"Sora"', 'sans-serif'],
             body: ['"Inter"', 'sans-serif'],
           },
-        }
+        },
+        keyframes: {
+          'fade-in-up': {
+            '0%': {opacity: '0', transform: 'translateY(20px)'},
+            '100%': {opacity: '1', transform: 'translateY(0)'},
+          },
+          'fade-in': {
+            '0%': {opacity: '0'},
+            '100%': {opacity: '1'},
+          },
+        },
+        animation: {
+          'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
+          'fade-in': 'fade-in 0.4s ease-out forwards',
+        },
       }
     }
   </script>
-</head>
-
-<body class="bg-light font-normal text-black dark:bg-black font-body dark:text-white min-h-screen flex flex-col">
-  @Nav()
-  <main class="flex-grow flex items-center justify-center p-4">
-    @children
-  </main>
-</body>
-
-</html>
+		</head>
+		<body class="bg-light font-normal text-black dark:bg-black font-body dark:text-white min-h-screen flex flex-col">
+			@Nav()
+			<main class="flex-grow flex items-center justify-center p-4">
+				@children
+			</main>
+		</body>
+	</html>
 }

@@ -5,12 +5,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/shahidshabbir-se/renhance-email-detector/internal/api/handlers"
+	"github.com/shahidshabbir-se/renhance-email-detector/internal/db"
 	"github.com/shahidshabbir-se/renhance-email-detector/pkg/utils"
 	"github.com/shahidshabbir-se/renhance-email-detector/templates/pages"
 	"github.com/sirupsen/logrus"
 )
 
-func SetupRouter(handler *handlers.Handler, log *logrus.Logger) *fiber.App {
+func SetupRouter(handler *handlers.Handler, store db.Store, log *logrus.Logger) *fiber.App {
 	adminPassword := utils.GetEnv("ADMIN_PASSWORD", "password123")
 	app := fiber.New()
 
@@ -22,8 +23,7 @@ func SetupRouter(handler *handlers.Handler, log *logrus.Logger) *fiber.App {
 	})
 
 	app.Post("/submit", handler.SubmitEmail)
-	app.Get("/result/:job_id", handler.CheckResult)
-
+	app.Get("/result/:job_id", handlers.GetJobDetailsPage(store))
 	app.Get("/metrics", basicauth.New(basicauth.Config{
 		Users: map[string]string{
 			"admin": adminPassword,

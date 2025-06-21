@@ -26,9 +26,10 @@ func main() {
 		log.WithError(err).Fatal("Failed to initialize Redis")
 	}
 
-	db.InitPostgres(ctx, log)
+	pool := db.InitPostgres(ctx, log)
+	store := db.NewStore(pool)
 
-	if err := api.StartServer(log); err != nil {
+	if err := api.StartServer(log, store); err != nil {
 		log.WithError(err).Fatal("API server failed")
 	}
 }

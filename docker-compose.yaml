@@ -32,6 +32,7 @@ services:
       - postgres_password
       - postgres_db
       - redis_password
+      - admin_password
     environment:
       - APP_ENV=production
       - REDIS_ADDR=redis:6379
@@ -41,6 +42,7 @@ services:
       - BETTERSTACK_TOKEN_FILE=/run/secrets/betterstack_token
       - BETTERSTACK_LOGS_URL_FILE=/run/secrets/betterstack_logs_url
       - REDIS_PASSWORD_FILE=/run/secrets/redis_password
+      - ADMIN_PASSWORD_FILE=/run/secrets/admin_password
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.renhance-api.rule=Host(`renhance.duckdns.org`)"
@@ -64,6 +66,7 @@ services:
         export BETTERSTACK_TOKEN=$$(cat /run/secrets/betterstack_token) &&
         export BETTERSTACK_LOGS_URL=$$(cat /run/secrets/betterstack_logs_url) &&
         export REDIS_PASSWORD=$$(cat /run/secrets/redis_password) &&
+        export ADMIN_PASSWORD=$$(cat /run/secrets/admin_password) &&
         exec ./api
       "
     healthcheck:
@@ -87,6 +90,7 @@ services:
       - postgres_password
       - postgres_db
       - redis_password
+      - admin_password
     environment:
       - APP_ENV=production
       - REDIS_ADDR=redis:6379
@@ -96,6 +100,7 @@ services:
       - BETTERSTACK_TOKEN_FILE=/run/secrets/betterstack_token
       - BETTERSTACK_LOGS_URL_FILE=/run/secrets/betterstack_logs_url
       - REDIS_PASSWORD_FILE=/run/secrets/redis_password
+      - ADMIN_PASSWORD_FILE=/run/secrets/admin_password
     depends_on:
       - db
       - redis
@@ -109,6 +114,7 @@ services:
         export BETTERSTACK_TOKEN=$$(cat /run/secrets/betterstack_token) && 
         export BETTERSTACK_LOGS_URL=$$(cat /run/secrets/betterstack_logs_url) && 
         export REDIS_PASSWORD=$$(cat /run/secrets/redis_password) &&
+        export ADMIN_PASSWORD=$$(cat /run/secrets/admin_password) &&
         ./worker
       "
     networks:

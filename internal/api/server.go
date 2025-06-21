@@ -7,12 +7,13 @@ import (
 	"time"
 
 	"github.com/shahidshabbir-se/renhance-email-detector/internal/api/handlers"
+	"github.com/shahidshabbir-se/renhance-email-detector/internal/db"
 	"github.com/sirupsen/logrus"
 )
 
-func StartServer(log *logrus.Logger) error {
+func StartServer(log *logrus.Logger, store db.Store) error {
 	handler := handlers.New(log)
-	app := SetupRouter(handler, log)
+	app := SetupRouter(handler, store, log)
 
 	port := os.Getenv("PORT")
 	if port == "" {
