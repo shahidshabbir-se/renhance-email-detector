@@ -28,4 +28,3 @@ clean:
 build:
 	@echo "🔨 Building Go binary..."
 	go build -o bin/app .
-

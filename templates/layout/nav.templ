@@ -10,29 +10,7 @@ templ Nav() {
 				<a
 					href="/"
 					class="font-heading font-extrabold h-10 md:h-10 block text-3xl md:text-4xl font-black tracking-tight dark:text-white whitespace-nowrap overflow-hidden transition-all duration-300"
-					x-data="{
-     text: 'renhance',
-     display: '',
-     index: 0,
-     start() {
-       const loop = () => {
-         this.display = '';
-         this.index = 0;
-         const interval = setInterval(() => {
-           if (this.index < this.text.length) {
-             this.display += this.text[this.index++];
-           } else {
-             clearInterval(interval);
-             setTimeout(loop, 1200);
-           }
-         }, 150);
-       };
-       loop();
-     }
-   }"
-					x-init="start()"
-					x-text="display"
-				></a>
+				>renhance</a>
 			</div>
 			<!-- Hamburger Button -->
 			<button @click="open = !open" class="md:hidden dark:text-white focus:outline-none">
